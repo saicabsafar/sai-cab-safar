@@ -123,6 +123,7 @@
     .upi-id-box { background: #f1f1f1; padding: 10px; border-radius: 8px; font-weight: 700; font-size: 14px; margin-bottom: 20px; color: #333; word-break: break-all; }
     .btn-close-modal { background: var(--dark); color: #fff; border: none; padding: 12px; width: 100%; border-radius: 25px; font-weight: 700; cursor: pointer; margin-top: 10px; }
     .profile-input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 14px; margin-bottom: 15px; outline: none; background: #fff; font-weight: 600; }
+    .trip-card-item { background: #f9f9f9; border: 1px solid #ddd; padding: 15px; border-radius: 10px; margin-bottom: 15px; }
 
     @media (max-width: 768px) {
       .hero-section { padding: 10px; }
@@ -204,7 +205,7 @@
             <div class="stop start">
               <label>Pickup Location</label>
               <div class="input-wrapper">
-                <input type="text" id="pickupCity" list="locSuggestions" placeholder="Type city, station, airport or temple" value="Pune" oninput="calcFare()">
+                <input type="text" id="pickupCity" list="locSuggestions" placeholder="Enter pickup city, station or airport" value="" oninput="calcFare()">
               </div>
             </div>
 
@@ -214,14 +215,14 @@
             <div class="stop" id="onewayDropBox">
               <label>Drop Destination</label>
               <div class="input-wrapper">
-                <input type="text" id="dropCity" list="locSuggestions" placeholder="Type destination or airport" value="Shirdi" oninput="calcFare()">
+                <input type="text" id="dropCity" list="locSuggestions" placeholder="Enter drop destination or temple" value="" oninput="calcFare()">
               </div>
             </div>
             
             <div class="stop" id="roundtripDestBox" style="display:none;">
               <label>City to Visit (Destination)</label>
               <div class="input-wrapper">
-                <input type="text" id="destCity" list="locSuggestions" placeholder="Type destination city" value="Shirdi" oninput="calcFare()">
+                <input type="text" id="destCity" list="locSuggestions" placeholder="Enter destination city" value="" oninput="calcFare()">
               </div>
             </div>
 
@@ -238,9 +239,11 @@
         <!-- Add More City Button -->
         <button type="button" class="btn-add-stop" onclick="addStopField()">+ Add More City / Stop</button>
 
-        <!-- Suggestion list -->
+        <!-- Suggestion list with Satara & Kolhapur attractions -->
         <datalist id="locSuggestions">
           <option value="Pune Airport (PNQ)"><option value="Mumbai Airport (BOM)"><option value="Shirdi Airport (SAG)"><option value="Nashik Airport (ISK)"><option value="Chhatrapati Sambhajinagar Airport (IXU)"><option value="Pune Railway Station"><option value="Mumbai CSMT Railway Station"><option value="Ahmednagar Railway Station"><option value="Nashik Road Railway Station"><option value="Aurangabad Railway Station"><option value="Sainagar Shirdi Railway Station"><option value="Shirdi (Saibaba Temple)"><option value="Shani Shingnapur"><option value="Trimbakeshwar Jyotirlinga"><option value="Grishneshwar Jyotirlinga"><option value="Bhimashankar Jyotirlinga"><option value="Ellora Caves"><option value="Ajanta Caves"><option value="Lonavala & Khandala"><option value="Ahilyanagar (Ahmednagar)"><option value="Shirdi"><option value="Sangamner"><option value="Kopargaon"><option value="Shrirampur"><option value="Rahuri"><option value="Pune"><option value="Pimpri-Chinchwad"><option value="Baramati"><option value="Mumbai"><option value="Navi Mumbai"><option value="Thane"><option value="Nashik"><option value="Malegaon"><option value="Igatpuri"><option value="Chhatrapati Sambhajinagar (Aurangabad)"><option value="Paithan">
+          <!-- Satara & Kolhapur additions -->
+          <option value="Satara"><option value="Mahabaleshwar"><option value="Panchgani"><option value="Kaas Plateau"><option value="Sajjangarh Fort"><option value="Pratapgad Fort"><option value="Kolhapur"><option value="Mahalaxmi Temple Kolhapur"><option value="Panhala Fort"><option value="Jyotiba Temple"><option value="Rankala Lake">
         </datalist>
 
         <button class="btn-get-prices" onclick="showResults()">Get Prices ➔</button>
@@ -334,12 +337,15 @@
     <button onclick="saveProfileDetails()" class="btn-pay" style="width:100%;">Login & Continue to Booking ➔</button>
   </div>
 
-  <!-- STATIC INFO PAGES -->
+  <!-- YOUR TRIPS VIEW -->
   <div id="tripsView" class="page-view">
-    <h2>Your Trips</h2>
-    <p>Here you can view your past and upcoming bookings with Sai Cab Safar. Log in to your profile to sync your live trip records instantly.</p>
+    <h2>Your Booked Trips</h2>
+    <div id="tripsListContainer">
+      <p>No trips booked yet. Once you confirm a booking, it will appear here.</p>
+    </div>
   </div>
 
+  <!-- STATIC INFO PAGES -->
   <div id="plannerView" class="page-view">
     <h2>Trip Planner</h2>
     <p>Plan your multi-city pilgrimage or outstation tour across Maharashtra effortlessly. Select custom stops and get instant transparent fare estimates.</p>
@@ -426,6 +432,7 @@
       } else if(viewName === 'profile') {
         document.getElementById('profileView').style.display = 'block';
       } else if(viewName === 'trips') {
+        loadCustomerTrips();
         document.getElementById('tripsView').style.display = 'block';
       } else if(viewName === 'planner') {
         document.getElementById('plannerView').style.display = 'block';
@@ -455,20 +462,42 @@
         return;
       }
 
-      // Update drawer header to show customer name and email
+      localStorage.setItem('customerName', name);
+      localStorage.setItem('customerEmail', email);
+      localStorage.setItem('customerMobile', mobile);
+
       document.getElementById('drawerName').innerText = name;
       document.getElementById('drawerEmail').innerText = email;
 
-      // Send WhatsApp notification to business owner
       const loginMsg = encodeURIComponent("🔔 *New Customer Login Alert!*\n\n• Name: " + name + "\n• Email: " + email + "\n• Mobile: " + mobile);
       window.open("https://wa.me/919049133130?text=" + loginMsg, '_blank');
 
       alert("Login successful! Welcome to Sai Cab Safar.");
       
-      // Directly open booking page (homeView) after login
       document.getElementById('profileView').style.display = 'none';
       document.getElementById('homeView').style.display = 'block';
       window.scrollTo(0, 0);
+    }
+
+    function loadCustomerTrips() {
+      const container = document.getElementById('tripsListContainer');
+      let trips = JSON.parse(localStorage.getItem('savedTrips')) || [];
+      if(trips.length === 0) {
+        container.innerHTML = '<p>No trips booked yet. Once you confirm a booking, it will appear here.</p>';
+        return;
+      }
+      let html = '';
+      trips.forEach((trip, index) => {
+        html += `<div class="trip-card-item">
+          <p><b>Trip #${index+1} (${trip.type})</b></p>
+          <p><b>Route:</b> ${trip.route}</p>
+          <p><b>Date:</b> ${trip.date} at ${trip.time}</p>
+          <p><b>Car:</b> ${trip.car}</p>
+          <p><b>Total Fare:</b> ₹${trip.totalFare.toLocaleString('en-IN')}</p>
+          <p><b>Advance Paid:</b> ₹${trip.advance.toLocaleString('en-IN')}</p>
+        </div>`;
+      });
+      container.innerHTML = html;
     }
 
     const cityData = {
@@ -507,7 +536,19 @@
       "Malegaon": {lat: 20.5511, lon: 74.5273},
       "Igatpuri": {lat: 19.6974, lon: 73.5539},
       "Chhatrapati Sambhajinagar (Aurangabad)": {lat: 19.8762, lon: 75.3433},
-      "Paithan": {lat: 19.4795, lon: 75.3853}
+      "Paithan": {lat: 19.4795, lon: 75.3853},
+      /* Satara & Kolhapur coordinates */
+      "Satara": {lat: 17.6805, lon: 74.0183},
+      "Mahabaleshwar": {lat: 17.9229, lon: 73.6586},
+      "Panchgani": {lat: 17.9254, lon: 73.8115},
+      "Kaas Plateau": {lat: 17.7212, lon: 73.8194},
+      "Sajjangarh Fort": {lat: 17.5258, lon: 73.9056},
+      "Pratapgad Fort": {lat: 17.9304, lon: 73.5593},
+      "Kolhapur": {lat: 16.7050, lon: 74.2433},
+      "Mahalaxmi Temple Kolhapur": {lat: 16.6951, lon: 74.2234},
+      "Panhala Fort": {lat: 16.8122, lon: 74.1121},
+      "Jyotiba Temple": {lat: 16.8286, lon: 74.1558},
+      "Rankala Lake": {lat: 16.6865, lon: 74.2120}
     };
 
     function setDefaultDateTime() {
@@ -622,7 +663,7 @@
       }
 
       if (routePoints.length <= 1) {
-        routeDistance = 120;
+        routeDistance = 0;
       }
 
       totalDays = 1;
@@ -634,7 +675,7 @@
         let minAllowedKm = totalDays * 250;
         finalTotalKm = routeDistance > minAllowedKm ? routeDistance : minAllowedKm;
       } else {
-        finalTotalKm = Math.max(routeDistance, 150);
+        finalTotalKm = Math.max(routeDistance, routeDistance > 0 ? 150 : 0);
       }
 
       let activeCalcRate = isRoundTrip ? roundCalcRate : oneWayCalcRate;
@@ -695,15 +736,28 @@
     function sendToWhatsApp() {
       const isRoundTrip = document.querySelector('input[name="tripType"]:checked').value === "Round-Trip";
       const pickupCity = document.getElementById('pickupCity').value;
-      
-      let stopsListText = "";
-      document.querySelectorAll('.additional-stop-input').forEach(input => {
-        if(input.value.trim()) {
-          stopsListText += " • Via: " + input.value.trim() + "\n";
-        }
-      });
-
       const dropCityName = isRoundTrip ? (document.getElementById('destCity').value + " (RoundTrip)") : document.getElementById('dropCity').value;
+      const tripDate = document.getElementById('tripDate').value;
+      const tripTimeRaw = document.getElementById('tripTime').value;
+      const tripTimeFormatted = format12Hour(tripTimeRaw);
+
+      if(!pickupCity || !dropCityName) {
+        alert("Please enter both Pickup and Drop locations.");
+        return;
+      }
+
+      let trips = JSON.parse(localStorage.getItem('savedTrips')) || [];
+      trips.push({
+        type: isRoundTrip ? "Round-Trip" : "One-Way",
+        route: pickupCity + " to " + dropCityName,
+        date: tripDate,
+        time: tripTimeFormatted,
+        car: selectedCarName,
+        totalFare: finalGrandTotal,
+        advance: advanceAmount
+      });
+      localStorage.setItem('savedTrips', JSON.stringify(trips));
+
       const fullAddress = document.getElementById('fullAddress').value || "Not provided";
       
       let addonText = "";
@@ -711,20 +765,11 @@
         addonText += "\n   + " + cb.getAttribute('data-name') + " (₹" + cb.value + ")";
       });
 
-      const tripDate = document.getElementById('tripDate').value;
-      const tripTimeRaw = document.getElementById('tripTime').value;
-      const tripTimeFormatted = format12Hour(tripTimeRaw);
       const returnDate = document.getElementById('returnDate').value;
-      
       let scheduleText = "• Pickup Date: " + tripDate + " at " + tripTimeFormatted + "\n";
       if(isRoundTrip) {
           scheduleText += "• Return Date: " + returnDate + "\n";
           scheduleText += "• Total Days: " + totalDays + " Day(s)\n";
-      }
-
-      let fullRouteString = pickupCity + " to " + dropCityName;
-      if (stopsListText) {
-        fullRouteString += "\n" + stopsListText.trim();
       }
 
       let remainingBalance = finalGrandTotal - advanceAmount;
@@ -732,7 +777,7 @@
       const rawText = "Hello Sai Cab Safar, I want to confirm my booking:\n\n" +
                       "🚕 *TRIP DETAILS*\n" +
                       "• Type: " + (isRoundTrip ? "Round-Trip" : "One-Way") + "\n" +
-                      "• Route: " + fullRouteString + "\n" +
+                      "• Route: " + pickupCity + " to " + dropCityName + "\n" +
                       scheduleText +
                       "• Address: " + fullAddress + "\n\n" +
                       "🚗 *VEHICLE & FARE*\n" +
