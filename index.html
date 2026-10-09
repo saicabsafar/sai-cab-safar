@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sai Cab Safar - India's Premier Cab Service</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --primary: #ffb100; --dark: #050505; --light-bg: #f8f9fa; --text-gray: #555; --border-color: #eee; --green: #25d366; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+    body { background-color: var(--light-bg); color: var(--dark); overflow-x: hidden; padding-bottom: 50px; }
+
+    /* Navbar */
+    .navbar { display: flex; justify-content: space-between; align-items: center; padding: 15px 5%; background-color: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 1000; }
+    .menu-icon { font-size: 24px; cursor: pointer; font-weight: bold; }
+    .brand-logo { background-color: var(--dark); color: var(--primary); padding: 8px 18px; border-radius: 25px; font-weight: 800; font-size: 20px; letter-spacing: -0.5px; cursor: pointer; }
+    .brand-logo span { color: #fff; }
+    
+    /* Side Drawer Overlay */
+    .drawer-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; z-index: 2000; }
+    .drawer { position: fixed; top: 0; left: -300px; width: 280px; height: 100%; background: #fff; transition: 0.3s ease; z-index: 2001; display: flex; flex-direction: column; overflow-y: auto; }
+    .drawer.open { left: 0; }
+    .drawer-header { background: var(--primary); padding: 25px 20px; text-align: center; color: #000; }
+    .drawer-header h3 { font-size: 18px; font-weight: 800; margin-bottom: 3px; }
+    .drawer-header p { font-size: 12px; opacity: 0.9; }
+    .drawer-menu { list-style: none; padding: 10px 0; flex: 1; }
+    .drawer-menu li a { display: block; padding: 14px 20px; text-decoration: none; color: #333; font-size: 14px; font-weight: 600; border-bottom: 1px solid #f1f1f1; transition: 0.2s; }
+    .drawer-menu li a:hover { background: #f8f9fa; color: var(--primary); }
+    .drawer-footer { padding: 20px; }
+    .btn-logout { width: 100%; background: var(--primary); border: none; padding: 12px; border-radius: 25px; font-weight: 700; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+
+    /* Hero & Widget */
+    .hero-section { position: relative; min-height: 90vh; display: flex; align-items: center; justify-content: flex-start; padding: 40px 5%; background: url('https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?q=80&w=2070&auto=format&fit=crop') center/cover no-repeat; }
+    .hero-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1; }
+    .booking-widget { position: relative; z-index: 2; background: #fff; width: 100%; max-width: 480px; border-radius: 16px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); margin: 0 auto; }
+    
+    /* Toggle */
+    .trip-toggle { display: flex; background: #f0f0f0; border-radius: 30px; padding: 5px; margin-bottom: 25px; }
+    .trip-lbl { flex: 1; text-align: center; cursor: pointer; }
+    .trip-lbl input { display: none; }
+    .trip-lbl span { display: block; padding: 12px; border-radius: 30px; font-weight: 700; font-size: 14px; color: var(--text-gray); transition: 0.3s; }
+    .trip-lbl input:checked + span { background: var(--dark); color: var(--primary); }
+
+    /* Dates */
+    .date-row { display: flex; justify-content: space-between; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
+    .date-field { flex: 1; min-width: 45%; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; }
+    .date-field label { display: block; font-size: 12px; color: var(--text-gray); margin-bottom: 5px; font-weight: 600; }
+    .date-field input { width: 100%; border: none; font-size: 15px; font-weight: 700; outline: none; background: transparent; color: var(--dark); }
+    #returnDateBox { display: none; }
+
+    /* Itinerary */
+    .itinerary { margin-bottom: 15px; }
+    .timeline { border-left: 1px dotted #ccc; margin-left: 8px; padding-left: 22px; }
+    .stop { position: relative; margin-bottom: 20px; }
+    .stop::before { content: ''; position: absolute; left: -28px; top: 6px; width: 12px; height: 12px; border-radius: 50%; background: #ccc; }
+    .stop.start::before { background: var(--dark); }
+    .stop.end::before { background: var(--primary); }
+    .stop label { display: block; font-size: 12px; color: var(--text-gray); margin-bottom: 4px; font-weight: 600; }
+    .input-wrapper { display: flex; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; }
+    .input-wrapper input { flex: 1; border: none; font-size: 15px; font-weight: 700; outline: none; background: transparent; color: var(--dark); width: 100%; }
+    
+    /* Add More Stops Button */
+    .btn-add-stop { background: #f0f0f0; border: 1px dashed #999; color: #333; font-size: 13px; font-weight: 700; padding: 8px 12px; border-radius: 20px; cursor: pointer; margin-bottom: 20px; display: inline-flex; align-items: center; gap: 6px; transition: 0.2s; }
+    .btn-add-stop:hover { background: #e4e4e4; border-color: var(--dark); }
+    .btn-remove-stop { background: none; border: none; color: #d32f2f; font-size: 16px; cursor: pointer; padding: 0 5px; font-weight: bold; }
+
+    .btn-get-prices { width: 100%; background: var(--primary); color: var(--dark); border: none; border-radius: 30px; padding: 16px; font-weight: 800; font-size: 16px; cursor: pointer; transition: 0.3s; }
+
+    /* --- DETAILED RESULTS SECTION --- */
+    .result-section { display: none; margin-top: 20px; border-top: 2px dashed #ddd; padding-top: 20px; }
+    
+    /* Car Selection */
+    .car-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+    .car-card { border: 1.5px solid var(--border-color); border-radius: 12px; padding: 15px; text-align: center; cursor: pointer; transition: 0.2s; background: #fff; }
+    .car-card.active { border-color: var(--dark); background: #fffcf0; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+    .car-card h4 { font-size: 15px; font-weight: 700; margin-bottom: 5px; }
+    .car-card span { font-size: 12px; color: var(--text-gray); }
+
+    /* Total Fare Box */
+    .total-fare-header { background: var(--dark); color: #fff; text-align: center; padding: 15px; border-radius: 10px 10px 0 0; margin-top: 20px; }
+    .total-fare-header .amount { font-size: 24px; font-weight: 800; color: var(--primary); }
+    
+    /* Breakdown List */
+    .breakdown-list { background: #f9f9f9; padding: 15px; border-radius: 0 0 10px 10px; border: 1px solid #eee; border-top: none; margin-bottom: 20px; }
+    .bd-item { display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; color: #444; padding: 8px 0; border-bottom: 1px dashed #ddd; }
+    .bd-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .bd-item span:nth-child(2) { font-weight: 700; color: var(--dark); }
+
+    /* Add-on Services */
+    .addon-section { margin-bottom: 25px; }
+    .addon-section h4 { font-size: 14px; text-decoration: underline; margin-bottom: 12px; text-align: center; color: var(--dark); }
+    .addon-item { display: flex; align-items: flex-start; gap: 10px; font-size: 13px; font-weight: 500; color: #333; margin-bottom: 12px; cursor: pointer; }
+    .addon-item input[type="checkbox"] { margin-top: 3px; accent-color: var(--primary); transform: scale(1.2); }
+    
+    /* Address Input */
+    .address-box { margin-bottom: 20px; }
+    .address-box label { font-size: 14px; font-weight: 700; color: var(--dark); margin-bottom: 8px; display: block; text-align: center; text-decoration: underline;}
+    .address-box input { width: 100%; border: 1px solid #ccc; border-radius: 8px; padding: 12px; font-size: 14px; outline: none; transition: 0.3s; }
+    .address-box input:focus { border-color: var(--primary); box-shadow: 0 0 5px rgba(255, 177, 0, 0.3); }
+
+    /* Payment Bar */
+    .payment-bar { background: var(--dark); padding: 20px; border-radius: 12px; text-align: center; }
+    .advance-text { color: #fff; font-size: 15px; font-weight: 700; margin-bottom: 12px; }
+    .payment-notice { background: rgba(255, 77, 77, 0.15); color: #ff4d4d; border: 1px dashed #ff4d4d; padding: 12px; border-radius: 8px; font-size: 13px; font-weight: 600; margin-bottom: 15px; text-align: center; line-height: 1.4; }
+    .btn-pay { width: 100%; background: var(--primary); color: var(--dark); border: none; border-radius: 30px; padding: 14px; font-weight: 800; font-size: 15px; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; margin-bottom: 10px; transition: 0.2s; }
+    .btn-pay:hover { transform: scale(1.02); }
+
+    /* UPI Modal Popup Styles */
+    .upi-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 3000; justify-content: center; align-items: center; }
+    .upi-content { background: #fff; width: 90%; max-width: 380px; border-radius: 16px; padding: 25px; text-align: center; position: relative; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+    .upi-content h3 { font-size: 20px; font-weight: 800; margin-bottom: 5px; color: var(--dark); }
+    .upi-content p { font-size: 13px; color: var(--text-gray); margin-bottom: 15px; }
+    .upi-amount { font-size: 26px; font-weight: 800; color: #d32f2f; margin-bottom: 15px; background: #fff5f5; padding: 10px; border-radius: 8px; }
+    .qr-box { background: #f8f9fa; padding: 15px; border-radius: 12px; border: 1px solid #eee; margin-bottom: 15px; }
+    .qr-box img { width: 180px; height: 180px; object-fit: contain; }
+    .upi-id-box { background: #f1f1f1; padding: 10px; border-radius: 8px; font-weight: 700; font-size: 14px; margin-bottom: 20px; color: #333; word-break: break-all; }
+    .btn-close-modal { background: var(--dark); color: #fff; border: none; padding: 12px; width: 100%; border-radius: 25px; font-weight: 700; cursor: pointer; }
+
+    @media (max-width: 768px) {
+      .hero-section { padding: 10px; }
+      .booking-widget { max-width: 100%; border-radius: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="menu-icon" onclick="toggleDrawer()">☰</div>
+    <div class="brand-logo">saicab<span>safar</span></div>
+  </nav>
+
+  <!-- Side Menu Drawer Overlay -->
+  <div class="drawer-overlay" id="drawerOverlay" onclick="toggleDrawer()"></div>
+
+  <!-- Side Menu Drawer -->
+  <div class="drawer" id="sideDrawer">
+    <div class="drawer-header">
+      <h3>Sai Cab Safar</h3>
+      <p>24x7 Cab Service</p>
+    </div>
+    <ul class="drawer-menu">
+      <li><a href="#" onclick="toggleDrawer()">Home</a></li>
+      <li><a href="#" onclick="toggleDrawer()">Profile</a></li>
+      <li><a href="#" onclick="toggleDrawer()">Your Trips</a></li>
+      <li><a href="#" onclick="toggleDrawer()">Trip Planner</a></li>
+      <li><a href="#" onclick="toggleDrawer()">FAQ</a></li>
+      <li><a href="#" onclick="toggleDrawer()">Refer and Earn</a></li>
+      <li><a href="#" onclick="toggleDrawer()">Privacy Policy</a></li>
+      <li><a href="#" onclick="toggleDrawer()">Refund Policy</a></li>
+      <li><a href="#" onclick="toggleDrawer()">Terms Of Use</a></li>
+      <li><a href="#" onclick="toggleDrawer()">Contact Us</a></li>
+    </ul>
+    <div class="drawer-footer">
+      <button class="btn-logout" onclick="alert('Logged out successfully')">Log out 🚪</button>
+    </div>
+  </div>
+
+  <section class="hero-section">
+    <div class="hero-overlay"></div>
+    
+    <div class="booking-widget">
+      <!-- Toggle -->
+      <div class="trip-toggle">
+        <label class="trip-lbl">
+          <input type="radio" name="tripType" value="One-Way" checked onchange="handleTripTypeChange()">
+          <span>One Way Trip</span>
+        </label>
+        <label class="trip-lbl">
+          <input type="radio" name="tripType" value="Round-Trip" onchange="handleTripTypeChange()">
+          <span>Round Trip</span>
+        </label>
+      </div>
+
+      <!-- Dates -->
+      <div class="date-row">
+        <div class="date-field">
+          <label>Pickup Date</label>
+          <input type="date" id="tripDate" onchange="calcFare()">
+        </div>
+        <div class="date-field">
+          <label>Pickup Time (12hr)</label>
+          <input type="time" id="tripTime" onchange="calcFare()">
+        </div>
+        <div class="date-field" id="returnDateBox">
+          <label>Return Date</label>
+          <input type="date" id="returnDate" onchange="calcFare()">
+        </div>
+      </div>
+
+      <!-- Itinerary -->
+      <div class="itinerary">
+        <div class="timeline" id="timelineContainer">
+          
+          <div class="stop start">
+            <label>Pickup Location</label>
+            <div class="input-wrapper">
+              <input type="text" id="pickupCity" list="locSuggestions" placeholder="Type city, station, airport or temple" value="Pune" oninput="calcFare()">
+            </div>
+          </div>
+
+          <!-- Dynamic Stops Container -->
+          <div id="dynamicStopsList"></div>
+          
+          <div class="stop" id="onewayDropBox">
+            <label>Drop Destination</label>
+            <div class="input-wrapper">
+              <input type="text" id="dropCity" list="locSuggestions" placeholder="Type destination or airport" value="Shirdi" oninput="calcFare()">
+            </div>
+          </div>
+          
+          <div class="stop" id="roundtripDestBox" style="display:none;">
+            <label>City to Visit (Destination)</label>
+            <div class="input-wrapper">
+              <input type="text" id="destCity" list="locSuggestions" placeholder="Type destination city" value="Shirdi" oninput="calcFare()">
+            </div>
+          </div>
+
+          <div class="stop end" id="roundtripReturnBox" style="display:none;">
+            <label>Drop (Return Location)</label>
+            <div class="input-wrapper">
+              <span id="returnLocText" style="font-weight: 700; font-size: 15px; color: #d32f2f;">Same as Pickup</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Add More City Button -->
+      <button type="button" class="btn-add-stop" onclick="addStopField()">+ Add More City / Stop</button>
+
+      <!-- Suggestion list -->
+      <datalist id="locSuggestions">
+        <option value="Pune Airport (PNQ)">
+        <option value="Mumbai Airport (BOM)">
+        <option value="Shirdi Airport (SAG)">
+        <option value="Nashik Airport (ISK)">
+        <option value="Chhatrapati Sambhajinagar Airport (IXU)">
+        <option value="Pune Railway Station">
+        <option value="Mumbai CSMT Railway Station">
+        <option value="Ahmednagar Railway Station">
+        <option value="Nashik Road Railway Station">
+        <option value="Aurangabad Railway Station">
+        <option value="Sainagar Shirdi Railway Station">
+        <option value="Shirdi (Saibaba Temple)">
+        <option value="Shani Shingnapur">
+        <option value="Trimbakeshwar Jyotirlinga">
+        <option value="Grishneshwar Jyotirlinga">
+        <option value="Bhimashankar Jyotirlinga">
+        <option value="Ellora Caves">
+        <option value="Ajanta Caves">
+        <option value="Lonavala & Khandala">
+        <option value="Ahilyanagar (Ahmednagar)">
+        <option value="Shirdi">
+        <option value="Sangamner">
+        <option value="Kopargaon">
+        <option value="Shrirampur">
+        <option value="Rahuri">
+        <option value="Pune">
+        <option value="Pimpri-Chinchwad">
+        <option value="Baramati">
+        <option value="Mumbai">
+        <option value="Navi Mumbai">
+        <option value="Thane">
+        <option value="Nashik">
+        <option value="Malegaon">
+        <option value="Igatpuri">
+        <option value="Chhatrapati Sambhajinagar (Aurangabad)">
+        <option value="Paithan">
+      </datalist>
+
+      <button class="btn-get-prices" onclick="showResults()">Get Prices ➔</button>
+
+      <!-- DETAILED RESULTS SECTION -->
+      <div class="result-section" id="resultBlock">
+        
+        <div class="car-grid">
+          <div class="car-card active" id="car-sedan" onclick="selectCarType('SEDAN (AC)', 15.5, 12, 12, this)">
+            <h4>SEDAN (AC)</h4>
+            <span>4+1 Seater</span><br>
+            <span style="font-weight:bold; color:var(--dark);">₹12/KM</span>
+          </div>
+          <div class="car-card" id="car-suv" onclick="selectCarType('SUV (AC)', 20.5, 15, 15, this)">
+            <h4>SUV (AC)</h4>
+            <span>6+1 Seater</span><br>
+            <span style="font-weight:bold; color:var(--dark);">₹15/KM</span>
+          </div>
+        </div>
+
+        <!-- Total Fare Breakdown -->
+        <div class="total-fare-header">
+          <div class="amount" id="totalFareDisplay">₹0</div>
+        </div>
+        <div class="breakdown-list">
+          <div class="bd-item"><span>Included Distance</span> <span id="includedKmText">0 KM</span></div>
+          <div class="bd-item"><span>Extra Fare/KM</span> <span id="extraFareText">₹12.0/km</span></div>
+          <div class="bd-item"><span>Driver Charges</span> <span>Included</span></div>
+          <div class="bd-item"><span>Toll & Parking</span> <span>Extra (As Actual)</span></div>
+        </div>
+
+        <!-- Add-on Services -->
+        <div class="addon-section">
+          <h4><u>Add on Service (Optional)</u></h4>
+          <label class="addon-item">
+            <input type="checkbox" class="addon-cb" value="500" data-name="Luggage Carrier" onchange="calcFare()"> 
+            Assured luggage space (carrier required) for Rs. 500
+          </label>
+          <label class="addon-item">
+            <input type="checkbox" class="addon-cb" value="800" data-name="Pet Allowed" onchange="calcFare()"> 
+            Pet Allowed for Rs. 800
+          </label>
+          <label class="addon-item">
+            <input type="checkbox" class="addon-cb" value="500" data-name="Local Sightseeing" onchange="calcFare()"> 
+            Local Sightseeing in Destination City for Rs. 500
+          </label>
+        </div>
+
+        <!-- Complete Address Box -->
+        <div class="address-box">
+          <label>Have Billing Info?</label>
+          <input type="text" id="fullAddress" placeholder="Enter complete pickup address (e.g. H.No, Area, Landmark)">
+        </div>
+
+        <!-- Payment Bar with UPI Integration & Notice -->
+        <div class="payment-bar">
+          <div class="advance-text" id="advancePayText">Pay ₹0 advance and Book</div>
+          
+          <div class="payment-notice">
+            ⚠️ <b>Note:</b> After successful payment, tap on "Confirm Booking" below and send us the payment screenshot.
+          </div>
+
+          <button onclick="openUpiModal()" class="btn-pay">Pay via UPI & Other Modes ➔</button>
+          <button onclick="sendToWhatsApp()" class="btn-pay" style="background:#fff; border:2px solid var(--primary);">Confirm Booking via WhatsApp ➔</button>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- UPI QR Code Modal Popup -->
+  <div class="upi-modal" id="upiModal">
+    <div class="upi-content">
+      <h3>Scan & Pay Advance</h3>
+      <p>Sai Cab Safar Tours and Travels</p>
+      <div class="upi-amount" id="modalAmountDisplay">₹0</div>
+      
+      <div class="qr-box">
+        <img id="upiQrImage" src="" alt="UPI QR Code">
+      </div>
+      
+      <div class="upi-id-box">UPI ID: Q598238767@ybl</div>
+      <button class="btn-close-modal" onclick="closeUpiModal()">Close / Done</button>
+    </div>
+  </div>
+
+  <script>
+    function toggleDrawer() {
+      const drawer = document.getElementById('sideDrawer');
+      const overlay = document.getElementById('drawerOverlay');
+      if (drawer.classList.contains('open')) {
+        drawer.classList.remove('open');
+        overlay.style.display = 'none';
+      } else {
+        drawer.classList.add('open');
+        overlay.style.display = 'block';
+      }
+    }
+
+    const cityData = {
+      "Pune Airport (PNQ)": {lat: 18.5822, lon: 73.9197},
+      "Mumbai Airport (BOM)": {lat: 19.0896, lon: 72.8656},
+      "Shirdi Airport (SAG)": {lat: 19.6828, lon: 74.3725},
+      "Nashik Airport (ISK)": {lat: 19.9272, lon: 73.9139},
+      "Chhatrapati Sambhajinagar Airport (IXU)": {lat: 19.8672, lon: 75.3978},
+      "Pune Railway Station": {lat: 18.5289, lon: 73.8743},
+      "Mumbai CSMT Railway Station": {lat: 18.9400, lon: 72.8353},
+      "Ahmednagar Railway Station": {lat: 19.1450, lon: 74.7520},
+      "Nashik Road Railway Station": {lat: 19.9675, lon: 73.8611},
+      "Aurangabad Railway Station": {lat: 19.8833, lon: 75.3167},
+      "Sainagar Shirdi Railway Station": {lat: 19.7450, lon: 74.4680},
+      "Shirdi (Saibaba Temple)": {lat: 19.7668, lon: 74.4754},
+      "Shani Shingnapur": {lat: 19.4975, lon: 74.5519},
+      "Trimbakeshwar Jyotirlinga": {lat: 19.9351, lon: 73.5298},
+      "Grishneshwar Jyotirlinga": {lat: 19.9547, lon: 75.1717},
+      "Bhimashankar Jyotirlinga": {lat: 19.0711, lon: 73.5356},
+      "Ellora Caves": {lat: 20.0258, lon: 75.1781},
+      "Ajanta Caves": {lat: 20.5519, lon: 75.7033},
+      "Lonavala & Khandala": {lat: 18.7481, lon: 73.4072},
+      "Ahilyanagar (Ahmednagar)": {lat: 19.0952, lon: 74.7496},
+      "Shirdi": {lat: 19.7668, lon: 74.4754},
+      "Sangamner": {lat: 19.5761, lon: 74.2053},
+      "Kopargaon": {lat: 19.8879, lon: 74.4770},
+      "Shrirampur": {lat: 19.6190, lon: 74.6567},
+      "Rahuri": {lat: 19.3878, lon: 74.6467},
+      "Pune": {lat: 18.5204, lon: 73.8567},
+      "Pimpri-Chinchwad": {lat: 18.6298, lon: 73.7997},
+      "Baramati": {lat: 18.1522, lon: 74.5779},
+      "Mumbai": {lat: 19.0760, lon: 72.8777},
+      "Navi Mumbai": {lat: 19.0330, lon: 73.0297},
+      "Thane": {lat: 19.2183, lon: 72.9781},
+      "Nashik": {lat: 20.0110, lon: 73.7903},
+      "Malegaon": {lat: 20.5511, lon: 74.5273},
+      "Igatpuri": {lat: 19.6974, lon: 73.5539},
+      "Chhatrapati Sambhajinagar (Aurangabad)": {lat: 19.8762, lon: 75.3433},
+      "Paithan": {lat: 19.4795, lon: 75.3853}
+    };
+
+    function setDefaultDateTime() {
+      let now = new Date();
+      now.setHours(now.getHours() + 2);
+      
+      let todayStr = now.toISOString().split('T')[0];
+      document.getElementById('tripDate').value = todayStr;
+      document.getElementById('returnDate').value = todayStr;
+      
+      let hours = String(now.getHours()).padStart(2, '0');
+      let minutes = String(now.getMinutes()).padStart(2, '0');
+      document.getElementById('tripTime').value = `${hours}:${minutes}`;
+    }
+
+    function calculateDistanceKM(lat1, lon1, lat2, lon2) {
+      const R = 6371; 
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      return Math.round((R * c) * 1.4); 
+    }
+
+    let selectedCarName = "SEDAN (AC)";
+    let oneWayCalcRate = 15.5; 
+    let roundCalcRate = 12;    
+    let displayExtraRate = 12; 
+
+    let finalTotalKm = 0;
+    let finalGrandTotal = 0;
+    let advanceAmount = 0;
+    let totalDays = 1;
+
+    function addStopField() {
+      const container = document.getElementById('dynamicStopsList');
+      const stopDiv = document.createElement('div');
+      stopDiv.className = 'stop dynamic-stop-item';
+      stopDiv.innerHTML = `
+        <label style="display:flex; justify-content:space-between; align-items:center;">
+          <span>Additional Stop / City</span>
+          <button type="button" class="btn-remove-stop" onclick="removeStopField(this)">×</button>
+        </label>
+        <div class="input-wrapper">
+          <input type="text" class="additional-stop-input" list="locSuggestions" placeholder="Type via city or stop" oninput="calcFare()">
+        </div>
+      `;
+      container.appendChild(stopDiv);
+      calcFare();
+    }
+
+    function removeStopField(btn) {
+      btn.closest('.stop').remove();
+      calcFare();
+    }
+
+    function handleTripTypeChange() {
+      const isRoundTrip = document.querySelector('input[name="tripType"]:checked').value === "Round-Trip";
+      document.getElementById('returnDateBox').style.display = isRoundTrip ? 'block' : 'none';
+      document.getElementById('onewayDropBox').style.display = isRoundTrip ? 'none' : 'block';
+      document.getElementById('roundtripDestBox').style.display = isRoundTrip ? 'block' : 'none';
+      document.getElementById('roundtripReturnBox').style.display = isRoundTrip ? 'block' : 'none';
+      calcFare();
+    }
+
+    function showResults() {
+      document.getElementById('resultBlock').style.display = 'block';
+      calcFare();
+    }
+
+    function selectCarType(name, oneWayRate, roundRate, dispRate, element) {
+      selectedCarName = name;
+      oneWayCalcRate = oneWayRate;
+      roundCalcRate = roundRate;
+      displayExtraRate = dispRate;
+      
+      document.querySelectorAll('.car-card').forEach(c => c.classList.remove('active'));
+      element.classList.add('active');
+      calcFare();
+    }
+
+    function calcFare() {
+      const isRoundTrip = document.querySelector('input[name="tripType"]:checked').value === "Round-Trip";
+      const pCity = document.getElementById('pickupCity').value.trim();
+      document.getElementById('returnLocText').innerText = pCity || "Pickup Location"; 
+
+      let routePoints = [pCity];
+      
+      document.querySelectorAll('.additional-stop-input').forEach(input => {
+        let val = input.value.trim();
+        if (val) routePoints.push(val);
+      });
+
+      if (isRoundTrip) {
+        const destCity = document.getElementById('destCity').value.trim();
+        if (destCity) routePoints.push(destCity);
+        // For round trip, add return path back to pickup location
+        if (pCity) routePoints.push(pCity);
+      } else {
+        const dCity = document.getElementById('dropCity').value.trim();
+        if (dCity) routePoints.push(dCity);
+      }
+
+      let routeDistance = 0;
+      for (let i = 0; i < routePoints.length - 1; i++) {
+        let pt1 = routePoints[i];
+        let pt2 = routePoints[i+1];
+        if (cityData[pt1] && cityData[pt2]) {
+          routeDistance += calculateDistanceKM(cityData[pt1].lat, cityData[pt1].lon, cityData[pt2].lat, cityData[pt2].lon);
+        } else {
+          routeDistance += 80; 
+        }
+      }
+
+      if (routePoints.length <= 1) {
+        routeDistance = 120;
+      }
+
+      totalDays = 1;
+      if(isRoundTrip) {
+        const tDate = new Date(document.getElementById('tripDate').value);
+        const rDate = new Date(document.getElementById('returnDate').value);
+        totalDays = Math.max(1, Math.ceil((rDate - tDate) / (1000 * 3600 * 24)) + 1); 
+        
+        // Minimum allowed KM check for round trips (250 KM per day limit)
+        let minAllowedKm = totalDays * 250;
+        finalTotalKm = routeDistance > minAllowedKm ? routeDistance : minAllowedKm;
+      } else {
+        finalTotalKm = Math.max(routeDistance, 150);
+      }
+
+      let activeCalcRate = isRoundTrip ? roundCalcRate : oneWayCalcRate;
+      let baseFare = (finalTotalKm * activeCalcRate) + (totalDays * 300); 
+
+      let addonTotal = 0;
+      document.querySelectorAll('.addon-cb:checked').forEach(cb => {
+        addonTotal += parseInt(cb.value);
+      });
+
+      finalGrandTotal = baseFare + addonTotal;
+      advanceAmount = Math.round(baseFare * 0.20) + addonTotal; 
+
+      if(routeDistance > 0) {
+        document.getElementById('totalFareDisplay').innerText = "₹" + finalGrandTotal.toLocaleString('en-IN');
+        document.getElementById('includedKmText').innerText = finalTotalKm + " KM";
+        document.getElementById('extraFareText').innerText = "₹" + displayExtraRate + ".0/km";
+        document.getElementById('advancePayText').innerText = "Pay ₹" + advanceAmount.toLocaleString('en-IN') + " advance and Book";
+      } else {
+        document.getElementById('totalFareDisplay').innerText = "₹0";
+      }
+    }
+
+    function openUpiModal() {
+      if (advanceAmount <= 0) {
+        alert("Please select a valid route first to calculate fare.");
+        return;
+      }
+      const upiId = "Q598238767@ybl";
+      const businessName = "Sai Cab Safar";
+      const transactionNote = "Cab Booking Advance";
+      const formattedAmount = Number(advanceAmount).toFixed(2);
+      
+      document.getElementById('modalAmountDisplay').innerText = "₹" + advanceAmount.toLocaleString('en-IN');
+      
+      const upiString = `upi://pay?pa=${upiId}&pn=${encodeURIComponent(businessName)}&am=${formattedAmount}&cu=INR&tn=${encodeURIComponent(transactionNote)}`;
+      const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(upiString)}`;
+      
+      document.getElementById('upiQrImage').src = qrApiUrl;
+      document.getElementById('upiModal').style.display = 'flex';
+    }
+
+    function closeUpiModal() {
+      document.getElementById('upiModal').style.display = 'none';
+    }
+
+    function format12Hour(timeStr) {
+      if (!timeStr) return "";
+      let [hours, minutes] = timeStr.split(':');
+      let h = parseInt(hours, 10);
+      let ampm = h >= 12 ? 'PM' : 'AM';
+      h = h % 12;
+      h = h ? h : 12; 
+      return `${String(h).padStart(2, '0')}:${minutes} ${ampm}`;
+    }
+
+    function sendToWhatsApp() {
+      const isRoundTrip = document.querySelector('input[name="tripType"]:checked').value === "Round-Trip";
+      const pickupCity = document.getElementById('pickupCity').value;
+      
+      let stopsListText = "";
+      document.querySelectorAll('.additional-stop-input').forEach(input => {
+        if(input.value.trim()) {
+          stopsListText += " • Via: " + input.value.trim() + "\n";
+        }
+      });
+
+      const dropCityName = isRoundTrip ? (document.getElementById('destCity').value + " (RoundTrip)") : document.getElementById('dropCity').value;
+      const fullAddress = document.getElementById('fullAddress').value || "Not provided";
+      
+      let addonText = "";
+      document.querySelectorAll('.addon-cb:checked').forEach(cb => {
+        addonText += "\n   + " + cb.getAttribute('data-name') + " (₹" + cb.value + ")";
+      });
+
+      const tripDate = document.getElementById('tripDate').value;
+      const tripTimeRaw = document.getElementById('tripTime').value;
+      const tripTimeFormatted = format12Hour(tripTimeRaw);
+      const returnDate = document.getElementById('returnDate').value;
+      
+      let scheduleText = "• Pickup Date: " + tripDate + " at " + tripTimeFormatted + "\n";
+      if(isRoundTrip) {
+          scheduleText += "• Return Date: " + returnDate + "\n";
+          scheduleText += "• Total Days: " + totalDays + " Day(s)\n";
+      }
+
+      let fullRouteString = pickupCity + " to " + dropCityName;
+      if (stopsListText) {
+        fullRouteString += "\n" + stopsListText.trim();
+      }
+
+      const rawText = "Hello Sai Cab Safar, I want to confirm my booking:\n\n" +
+                      "🚕 *TRIP DETAILS*\n" +
+                      "• Type: " + (isRoundTrip ? "Round-Trip" : "One-Way") + "\n" +
+                      "• Route: " + fullRouteString + "\n" +
+                      scheduleText +
+                      "• Address: " + fullAddress + "\n\n" +
+                      "🚗 *VEHICLE & FARE*\n" +
+                      "• Car: " + selectedCarName + "\n" +
+                      "• Included KM: " + finalTotalKm + " KM\n" +
+                      "• Add-ons:" + (addonText ? addonText : " None") + "\n" +
+                      "• *Total Fare: ₹" + finalGrandTotal.toLocaleString('en-IN') + "*\n" +
+                      "• *Advance Paid/To Pay: ₹" + advanceAmount.toLocaleString('en-IN') + "*\n\n" +
+                      "Please confirm my booking.";
+
+      const encodedMessage = encodeURIComponent(rawText);
+      window.open("https://wa.me/919049133130?text=" + encodedMessage, '_blank');
+    }
+
+    setDefaultDateTime();
+    handleTripTypeChange();
+  </script>
+</body>
+</html>
