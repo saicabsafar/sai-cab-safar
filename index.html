@@ -239,10 +239,9 @@
         <!-- Add More City Button -->
         <button type="button" class="btn-add-stop" onclick="addStopField()">+ Add More City / Stop</button>
 
-        <!-- Suggestion list with Satara & Kolhapur attractions -->
+        <!-- Suggestion list -->
         <datalist id="locSuggestions">
           <option value="Pune Airport (PNQ)"><option value="Mumbai Airport (BOM)"><option value="Shirdi Airport (SAG)"><option value="Nashik Airport (ISK)"><option value="Chhatrapati Sambhajinagar Airport (IXU)"><option value="Pune Railway Station"><option value="Mumbai CSMT Railway Station"><option value="Ahmednagar Railway Station"><option value="Nashik Road Railway Station"><option value="Aurangabad Railway Station"><option value="Sainagar Shirdi Railway Station"><option value="Shirdi (Saibaba Temple)"><option value="Shani Shingnapur"><option value="Trimbakeshwar Jyotirlinga"><option value="Grishneshwar Jyotirlinga"><option value="Bhimashankar Jyotirlinga"><option value="Ellora Caves"><option value="Ajanta Caves"><option value="Lonavala & Khandala"><option value="Ahilyanagar (Ahmednagar)"><option value="Shirdi"><option value="Sangamner"><option value="Kopargaon"><option value="Shrirampur"><option value="Rahuri"><option value="Pune"><option value="Pimpri-Chinchwad"><option value="Baramati"><option value="Mumbai"><option value="Navi Mumbai"><option value="Thane"><option value="Nashik"><option value="Malegaon"><option value="Igatpuri"><option value="Chhatrapati Sambhajinagar (Aurangabad)"><option value="Paithan">
-          <!-- Satara & Kolhapur additions -->
           <option value="Satara"><option value="Mahabaleshwar"><option value="Panchgani"><option value="Kaas Plateau"><option value="Sajjangarh Fort"><option value="Pratapgad Fort"><option value="Kolhapur"><option value="Mahalaxmi Temple Kolhapur"><option value="Panhala Fort"><option value="Jyotiba Temple"><option value="Rankala Lake">
         </datalist>
 
@@ -537,7 +536,6 @@
       "Igatpuri": {lat: 19.6974, lon: 73.5539},
       "Chhatrapati Sambhajinagar (Aurangabad)": {lat: 19.8762, lon: 75.3433},
       "Paithan": {lat: 19.4795, lon: 75.3853},
-      /* Satara & Kolhapur coordinates */
       "Satara": {lat: 17.6805, lon: 74.0183},
       "Mahabaleshwar": {lat: 17.9229, lon: 73.6586},
       "Panchgani": {lat: 17.9254, lon: 73.8115},
@@ -570,7 +568,7 @@
       const dLon = (lon2 - lon1) * Math.PI / 180;
       const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
       const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-      return Math.round((R * c) * 1.4); 
+      return Math.round((R * c) * 1.45); // Optimized multiplier closer to highway routes
     }
 
     let selectedCarName = "SEDAN (AC)";
@@ -675,7 +673,8 @@
         let minAllowedKm = totalDays * 250;
         finalTotalKm = routeDistance > minAllowedKm ? routeDistance : minAllowedKm;
       } else {
-        finalTotalKm = Math.max(routeDistance, routeDistance > 0 ? 150 : 0);
+        // One-way: if distance > 150, show actual calculated distance, otherwise minimum 150 KM slab
+        finalTotalKm = routeDistance > 150 ? routeDistance : (routeDistance > 0 ? 150 : 0);
       }
 
       let activeCalcRate = isRoundTrip ? roundCalcRate : oneWayCalcRate;
