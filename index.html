@@ -21,13 +21,20 @@
     .drawer { position: fixed; top: 0; left: -300px; width: 280px; height: 100%; background: #fff; transition: 0.3s ease; z-index: 2001; display: flex; flex-direction: column; overflow-y: auto; }
     .drawer.open { left: 0; }
     .drawer-header { background: var(--primary); padding: 25px 20px; text-align: center; color: #000; }
-    .drawer-header h3 { font-size: 18px; font-weight: 800; margin-bottom: 3px; }
-    .drawer-header p { font-size: 12px; opacity: 0.9; }
+    .drawer-header h3 { font-size: 18px; font-weight: 800; margin-bottom: 3px; word-break: break-all; }
+    .drawer-header p { font-size: 12px; opacity: 0.9; word-break: break-all; }
     .drawer-menu { list-style: none; padding: 10px 0; flex: 1; }
-    .drawer-menu li a { display: block; padding: 14px 20px; text-decoration: none; color: #333; font-size: 14px; font-weight: 600; border-bottom: 1px solid #f1f1f1; transition: 0.2s; }
+    .drawer-menu li a { display: block; padding: 14px 20px; text-decoration: none; color: #333; font-size: 14px; font-weight: 600; border-bottom: 1px solid #f1f1f1; transition: 0.2s; cursor: pointer; }
     .drawer-menu li a:hover { background: #f8f9fa; color: var(--primary); }
     .drawer-footer { padding: 20px; }
     .btn-logout { width: 100%; background: var(--primary); border: none; padding: 12px; border-radius: 25px; font-weight: 700; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+
+    /* Content Views */
+    .main-view { display: none; }
+    .page-view { display: none; padding: 30px 5%; max-width: 800px; margin: 0 auto; background: #fff; min-height: 80vh; border-radius: 12px; margin-top: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+    .page-view h2 { font-size: 24px; font-weight: 800; margin-bottom: 20px; color: var(--dark); border-bottom: 2px solid var(--primary); padding-bottom: 10px; }
+    .page-view p, .page-view li { font-size: 14px; color: var(--text-gray); line-height: 1.6; margin-bottom: 12px; }
+    .page-view ul { padding-left: 20px; }
 
     /* Hero & Widget */
     .hero-section { position: relative; min-height: 90vh; display: flex; align-items: center; justify-content: flex-start; padding: 40px 5%; background: url('https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?q=80&w=2070&auto=format&fit=crop') center/cover no-repeat; }
@@ -105,7 +112,7 @@
     .btn-pay { width: 100%; background: var(--primary); color: var(--dark); border: none; border-radius: 30px; padding: 14px; font-weight: 800; font-size: 15px; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; margin-bottom: 10px; transition: 0.2s; }
     .btn-pay:hover { transform: scale(1.02); }
 
-    /* UPI Modal Popup Styles */
+    /* Modals */
     .upi-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 3000; justify-content: center; align-items: center; }
     .upi-content { background: #fff; width: 90%; max-width: 380px; border-radius: 16px; padding: 25px; text-align: center; position: relative; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
     .upi-content h3 { font-size: 20px; font-weight: 800; margin-bottom: 5px; color: var(--dark); }
@@ -114,7 +121,8 @@
     .qr-box { background: #f8f9fa; padding: 15px; border-radius: 12px; border: 1px solid #eee; margin-bottom: 15px; }
     .qr-box img { width: 180px; height: 180px; object-fit: contain; }
     .upi-id-box { background: #f1f1f1; padding: 10px; border-radius: 8px; font-weight: 700; font-size: 14px; margin-bottom: 20px; color: #333; word-break: break-all; }
-    .btn-close-modal { background: var(--dark); color: #fff; border: none; padding: 12px; width: 100%; border-radius: 25px; font-weight: 700; cursor: pointer; }
+    .btn-close-modal { background: var(--dark); color: #fff; border: none; padding: 12px; width: 100%; border-radius: 25px; font-weight: 700; cursor: pointer; margin-top: 10px; }
+    .profile-input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 14px; margin-bottom: 15px; outline: none; background: #fff; font-weight: 600; }
 
     @media (max-width: 768px) {
       .hero-section { padding: 10px; }
@@ -126,7 +134,7 @@
 
   <nav class="navbar">
     <div class="menu-icon" onclick="toggleDrawer()">☰</div>
-    <div class="brand-logo">saicab<span>safar</span></div>
+    <div class="brand-logo" onclick="showView('home')">saicab<span>safar</span></div>
   </nav>
 
   <!-- Side Menu Drawer Overlay -->
@@ -134,207 +142,242 @@
 
   <!-- Side Menu Drawer -->
   <div class="drawer" id="sideDrawer">
-    <div class="drawer-header">
-      <h3>Sai Cab Safar</h3>
-      <p>24x7 Cab Service</p>
+    <div class="drawer-header" id="drawerHeader">
+      <h3 id="drawerName">Sai Cab Safar</h3>
+      <p id="drawerEmail">24x7 Cab Service</p>
     </div>
     <ul class="drawer-menu">
-      <li><a href="#" onclick="toggleDrawer()">Home</a></li>
-      <li><a href="#" onclick="toggleDrawer()">Profile</a></li>
-      <li><a href="#" onclick="toggleDrawer()">Your Trips</a></li>
-      <li><a href="#" onclick="toggleDrawer()">Trip Planner</a></li>
-      <li><a href="#" onclick="toggleDrawer()">FAQ</a></li>
-      <li><a href="#" onclick="toggleDrawer()">Refer and Earn</a></li>
-      <li><a href="#" onclick="toggleDrawer()">Privacy Policy</a></li>
-      <li><a href="#" onclick="toggleDrawer()">Refund Policy</a></li>
-      <li><a href="#" onclick="toggleDrawer()">Terms Of Use</a></li>
-      <li><a href="#" onclick="toggleDrawer()">Contact Us</a></li>
+      <li><a onclick="showView('home')">Home</a></li>
+      <li><a onclick="showView('profile')">Profile</a></li>
+      <li><a onclick="showView('trips')">Your Trips</a></li>
+      <li><a onclick="showView('planner')">Trip Planner</a></li>
+      <li><a onclick="showView('faq')">FAQ</a></li>
+      <li><a onclick="showView('refer')">Refer and Earn</a></li>
+      <li><a onclick="showView('privacy')">Privacy Policy</a></li>
+      <li><a onclick="showView('refund')">Refund Policy</a></li>
+      <li><a onclick="showView('terms')">Terms Of Use</a></li>
+      <li><a onclick="showView('contact')">Contact Us</a></li>
     </ul>
     <div class="drawer-footer">
       <button class="btn-logout" onclick="alert('Logged out successfully')">Log out 🚪</button>
     </div>
   </div>
 
-  <section class="hero-section">
-    <div class="hero-overlay"></div>
-    
-    <div class="booking-widget">
-      <!-- Toggle -->
-      <div class="trip-toggle">
-        <label class="trip-lbl">
-          <input type="radio" name="tripType" value="One-Way" checked onchange="handleTripTypeChange()">
-          <span>One Way Trip</span>
-        </label>
-        <label class="trip-lbl">
-          <input type="radio" name="tripType" value="Round-Trip" onchange="handleTripTypeChange()">
-          <span>Round Trip</span>
-        </label>
-      </div>
-
-      <!-- Dates -->
-      <div class="date-row">
-        <div class="date-field">
-          <label>Pickup Date</label>
-          <input type="date" id="tripDate" onchange="calcFare()">
-        </div>
-        <div class="date-field">
-          <label>Pickup Time (12hr)</label>
-          <input type="time" id="tripTime" onchange="calcFare()">
-        </div>
-        <div class="date-field" id="returnDateBox">
-          <label>Return Date</label>
-          <input type="date" id="returnDate" onchange="calcFare()">
-        </div>
-      </div>
-
-      <!-- Itinerary -->
-      <div class="itinerary">
-        <div class="timeline" id="timelineContainer">
-          
-          <div class="stop start">
-            <label>Pickup Location</label>
-            <div class="input-wrapper">
-              <input type="text" id="pickupCity" list="locSuggestions" placeholder="Type city, station, airport or temple" value="Pune" oninput="calcFare()">
-            </div>
-          </div>
-
-          <!-- Dynamic Stops Container -->
-          <div id="dynamicStopsList"></div>
-          
-          <div class="stop" id="onewayDropBox">
-            <label>Drop Destination</label>
-            <div class="input-wrapper">
-              <input type="text" id="dropCity" list="locSuggestions" placeholder="Type destination or airport" value="Shirdi" oninput="calcFare()">
-            </div>
-          </div>
-          
-          <div class="stop" id="roundtripDestBox" style="display:none;">
-            <label>City to Visit (Destination)</label>
-            <div class="input-wrapper">
-              <input type="text" id="destCity" list="locSuggestions" placeholder="Type destination city" value="Shirdi" oninput="calcFare()">
-            </div>
-          </div>
-
-          <div class="stop end" id="roundtripReturnBox" style="display:none;">
-            <label>Drop (Return Location)</label>
-            <div class="input-wrapper">
-              <span id="returnLocText" style="font-weight: 700; font-size: 15px; color: #d32f2f;">Same as Pickup</span>
-            </div>
-          </div>
-
-        </div>
-      </div>
-
-      <!-- Add More City Button -->
-      <button type="button" class="btn-add-stop" onclick="addStopField()">+ Add More City / Stop</button>
-
-      <!-- Suggestion list -->
-      <datalist id="locSuggestions">
-        <option value="Pune Airport (PNQ)">
-        <option value="Mumbai Airport (BOM)">
-        <option value="Shirdi Airport (SAG)">
-        <option value="Nashik Airport (ISK)">
-        <option value="Chhatrapati Sambhajinagar Airport (IXU)">
-        <option value="Pune Railway Station">
-        <option value="Mumbai CSMT Railway Station">
-        <option value="Ahmednagar Railway Station">
-        <option value="Nashik Road Railway Station">
-        <option value="Aurangabad Railway Station">
-        <option value="Sainagar Shirdi Railway Station">
-        <option value="Shirdi (Saibaba Temple)">
-        <option value="Shani Shingnapur">
-        <option value="Trimbakeshwar Jyotirlinga">
-        <option value="Grishneshwar Jyotirlinga">
-        <option value="Bhimashankar Jyotirlinga">
-        <option value="Ellora Caves">
-        <option value="Ajanta Caves">
-        <option value="Lonavala & Khandala">
-        <option value="Ahilyanagar (Ahmednagar)">
-        <option value="Shirdi">
-        <option value="Sangamner">
-        <option value="Kopargaon">
-        <option value="Shrirampur">
-        <option value="Rahuri">
-        <option value="Pune">
-        <option value="Pimpri-Chinchwad">
-        <option value="Baramati">
-        <option value="Mumbai">
-        <option value="Navi Mumbai">
-        <option value="Thane">
-        <option value="Nashik">
-        <option value="Malegaon">
-        <option value="Igatpuri">
-        <option value="Chhatrapati Sambhajinagar (Aurangabad)">
-        <option value="Paithan">
-      </datalist>
-
-      <button class="btn-get-prices" onclick="showResults()">Get Prices ➔</button>
-
-      <!-- DETAILED RESULTS SECTION -->
-      <div class="result-section" id="resultBlock">
-        
-        <div class="car-grid">
-          <div class="car-card active" id="car-sedan" onclick="selectCarType('SEDAN (AC)', 15.5, 12, 12, this)">
-            <h4>SEDAN (AC)</h4>
-            <span>4+1 Seater</span><br>
-            <span style="font-weight:bold; color:var(--dark);">₹12/KM</span>
-          </div>
-          <div class="car-card" id="car-suv" onclick="selectCarType('SUV (AC)', 20.5, 15, 15, this)">
-            <h4>SUV (AC)</h4>
-            <span>6+1 Seater</span><br>
-            <span style="font-weight:bold; color:var(--dark);">₹15/KM</span>
-          </div>
-        </div>
-
-        <!-- Total Fare Breakdown -->
-        <div class="total-fare-header">
-          <div class="amount" id="totalFareDisplay">₹0</div>
-        </div>
-        <div class="breakdown-list">
-          <div class="bd-item"><span>Included Distance</span> <span id="includedKmText">0 KM</span></div>
-          <div class="bd-item"><span>Extra Fare/KM</span> <span id="extraFareText">₹12.0/km</span></div>
-          <div class="bd-item"><span>Driver Charges</span> <span>Included</span></div>
-          <div class="bd-item"><span>Toll & Parking</span> <span>Extra (As Actual)</span></div>
-        </div>
-
-        <!-- Add-on Services -->
-        <div class="addon-section">
-          <h4><u>Add on Service (Optional)</u></h4>
-          <label class="addon-item">
-            <input type="checkbox" class="addon-cb" value="500" data-name="Luggage Carrier" onchange="calcFare()"> 
-            Assured luggage space (carrier required) for Rs. 500
+  <!-- MAIN HOME VIEW (Booking Page) -->
+  <div id="homeView" class="main-view">
+    <section class="hero-section">
+      <div class="hero-overlay"></div>
+      
+      <div class="booking-widget">
+        <!-- Toggle -->
+        <div class="trip-toggle">
+          <label class="trip-lbl">
+            <input type="radio" name="tripType" value="One-Way" checked onchange="handleTripTypeChange()">
+            <span>One Way Trip</span>
           </label>
-          <label class="addon-item">
-            <input type="checkbox" class="addon-cb" value="800" data-name="Pet Allowed" onchange="calcFare()"> 
-            Pet Allowed for Rs. 800
-          </label>
-          <label class="addon-item">
-            <input type="checkbox" class="addon-cb" value="500" data-name="Local Sightseeing" onchange="calcFare()"> 
-            Local Sightseeing in Destination City for Rs. 500
+          <label class="trip-lbl">
+            <input type="radio" name="tripType" value="Round-Trip" onchange="handleTripTypeChange()">
+            <span>Round Trip</span>
           </label>
         </div>
 
-        <!-- Complete Address Box -->
-        <div class="address-box">
-          <label>Have Billing Info?</label>
-          <input type="text" id="fullAddress" placeholder="Enter complete pickup address (e.g. H.No, Area, Landmark)">
+        <!-- Dates -->
+        <div class="date-row">
+          <div class="date-field">
+            <label>Pickup Date</label>
+            <input type="date" id="tripDate" onchange="calcFare()">
+          </div>
+          <div class="date-field">
+            <label>Pickup Time (12hr)</label>
+            <input type="time" id="tripTime" onchange="calcFare()">
+          </div>
+          <div class="date-field" id="returnDateBox">
+            <label>Return Date</label>
+            <input type="date" id="returnDate" onchange="calcFare()">
+          </div>
         </div>
 
-        <!-- Payment Bar with UPI Integration & Notice -->
-        <div class="payment-bar">
-          <div class="advance-text" id="advancePayText">Pay ₹0 advance and Book</div>
+        <!-- Itinerary -->
+        <div class="itinerary">
+          <div class="timeline" id="timelineContainer">
+            
+            <div class="stop start">
+              <label>Pickup Location</label>
+              <div class="input-wrapper">
+                <input type="text" id="pickupCity" list="locSuggestions" placeholder="Type city, station, airport or temple" value="Pune" oninput="calcFare()">
+              </div>
+            </div>
+
+            <!-- Dynamic Stops Container -->
+            <div id="dynamicStopsList"></div>
+            
+            <div class="stop" id="onewayDropBox">
+              <label>Drop Destination</label>
+              <div class="input-wrapper">
+                <input type="text" id="dropCity" list="locSuggestions" placeholder="Type destination or airport" value="Shirdi" oninput="calcFare()">
+              </div>
+            </div>
+            
+            <div class="stop" id="roundtripDestBox" style="display:none;">
+              <label>City to Visit (Destination)</label>
+              <div class="input-wrapper">
+                <input type="text" id="destCity" list="locSuggestions" placeholder="Type destination city" value="Shirdi" oninput="calcFare()">
+              </div>
+            </div>
+
+            <div class="stop end" id="roundtripReturnBox" style="display:none;">
+              <label>Drop (Return Location)</label>
+              <div class="input-wrapper">
+                <span id="returnLocText" style="font-weight: 700; font-size: 15px; color: #d32f2f;">Same as Pickup</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Add More City Button -->
+        <button type="button" class="btn-add-stop" onclick="addStopField()">+ Add More City / Stop</button>
+
+        <!-- Suggestion list -->
+        <datalist id="locSuggestions">
+          <option value="Pune Airport (PNQ)"><option value="Mumbai Airport (BOM)"><option value="Shirdi Airport (SAG)"><option value="Nashik Airport (ISK)"><option value="Chhatrapati Sambhajinagar Airport (IXU)"><option value="Pune Railway Station"><option value="Mumbai CSMT Railway Station"><option value="Ahmednagar Railway Station"><option value="Nashik Road Railway Station"><option value="Aurangabad Railway Station"><option value="Sainagar Shirdi Railway Station"><option value="Shirdi (Saibaba Temple)"><option value="Shani Shingnapur"><option value="Trimbakeshwar Jyotirlinga"><option value="Grishneshwar Jyotirlinga"><option value="Bhimashankar Jyotirlinga"><option value="Ellora Caves"><option value="Ajanta Caves"><option value="Lonavala & Khandala"><option value="Ahilyanagar (Ahmednagar)"><option value="Shirdi"><option value="Sangamner"><option value="Kopargaon"><option value="Shrirampur"><option value="Rahuri"><option value="Pune"><option value="Pimpri-Chinchwad"><option value="Baramati"><option value="Mumbai"><option value="Navi Mumbai"><option value="Thane"><option value="Nashik"><option value="Malegaon"><option value="Igatpuri"><option value="Chhatrapati Sambhajinagar (Aurangabad)"><option value="Paithan">
+        </datalist>
+
+        <button class="btn-get-prices" onclick="showResults()">Get Prices ➔</button>
+
+        <!-- DETAILED RESULTS SECTION -->
+        <div class="result-section" id="resultBlock">
           
-          <div class="payment-notice">
-            ⚠️ <b>Note:</b> After successful payment, tap on "Confirm Booking" below and send us the payment screenshot.
+          <div class="car-grid">
+            <div class="car-card active" id="car-sedan" onclick="selectCarType('SEDAN (AC)', 15.5, 12, 12, this)">
+              <h4>SEDAN (AC)</h4>
+              <span>4+1 Seater</span><br>
+              <span style="font-weight:bold; color:var(--dark);">₹12/KM</span>
+            </div>
+            <div class="car-card" id="car-suv" onclick="selectCarType('SUV (AC)', 20.5, 15, 15, this)">
+              <h4>SUV (AC)</h4>
+              <span>6+1 Seater</span><br>
+              <span style="font-weight:bold; color:var(--dark);">₹15/KM</span>
+            </div>
           </div>
 
-          <button onclick="openUpiModal()" class="btn-pay">Pay via UPI & Other Modes ➔</button>
-          <button onclick="sendToWhatsApp()" class="btn-pay" style="background:#fff; border:2px solid var(--primary);">Confirm Booking via WhatsApp ➔</button>
-        </div>
+          <!-- Total Fare Breakdown -->
+          <div class="total-fare-header">
+            <div class="amount" id="totalFareDisplay">₹0</div>
+          </div>
+          <div class="breakdown-list">
+            <div class="bd-item"><span>Included Distance</span> <span id="includedKmText">0 KM</span></div>
+            <div class="bd-item"><span>Extra Fare/KM</span> <span id="extraFareText">₹12.0/km</span></div>
+            <div class="bd-item"><span>Driver Charges</span> <span>Included</span></div>
+            <div class="bd-item"><span>Toll & Parking</span> <span>Extra (As Actual)</span></div>
+          </div>
 
+          <!-- Add-on Services -->
+          <div class="addon-section">
+            <h4><u>Add on Service (Optional)</u></h4>
+            <label class="addon-item">
+              <input type="checkbox" class="addon-cb" value="500" data-name="Luggage Carrier" onchange="calcFare()"> 
+              Assured luggage space (carrier required) for Rs. 500
+            </label>
+            <label class="addon-item">
+              <input type="checkbox" class="addon-cb" value="800" data-name="Pet Allowed" onchange="calcFare()"> 
+              Pet Allowed for Rs. 800
+            </label>
+            <label class="addon-item">
+              <input type="checkbox" class="addon-cb" value="500" data-name="Local Sightseeing" onchange="calcFare()"> 
+              Local Sightseeing in Destination City for Rs. 500
+            </label>
+          </div>
+
+          <!-- Complete Address Box -->
+          <div class="address-box">
+            <label>Have Billing Info?</label>
+            <input type="text" id="fullAddress" placeholder="Enter complete pickup address (e.g. H.No, Area, Landmark)">
+          </div>
+
+          <!-- Payment Bar with UPI Integration & Notice -->
+          <div class="payment-bar">
+            <div class="advance-text" id="advancePayText">Pay ₹0 advance and Book</div>
+            
+            <div class="payment-notice">
+              ⚠️ <b>Note:</b> After successful payment, tap on "Confirm Booking" below and send us the payment screenshot.
+            </div>
+
+            <button onclick="openUpiModal()" class="btn-pay">Pay via UPI & Other Modes ➔</button>
+            <button onclick="sendToWhatsApp()" class="btn-pay" style="background:#fff; border:2px solid var(--primary);">Confirm Booking via WhatsApp ➔</button>
+          </div>
+
+        </div>
       </div>
+    </section>
+  </div>
+
+  <!-- PROFILE / INITIAL LOGIN VIEW -->
+  <div id="profileView" class="page-view" style="display: block;">
+    <h2>Customer Login & Profile</h2>
+    <div style="text-align: center; margin-bottom: 25px;">
+      <div style="width: 80px; height: 80px; background: var(--primary); border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; font-size: 36px;">👤</div>
+      <p style="font-weight: 700; color: var(--dark);">Please enter your details to proceed to booking</p>
     </div>
-  </section>
+    <div style="margin-bottom: 15px;">
+      <label style="font-size: 13px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 5px;">Name</label>
+      <input type="text" id="profileName" class="profile-input" placeholder="Enter your full name">
+    </div>
+    <div style="margin-bottom: 15px;">
+      <label style="font-size: 13px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 5px;">Email</label>
+      <input type="email" id="profileEmail" class="profile-input" placeholder="Enter your email address">
+    </div>
+    <div style="margin-bottom: 20px;">
+      <label style="font-size: 13px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 5px;">Mobile Number</label>
+      <input type="tel" id="profileMobile" class="profile-input" placeholder="Enter 10-digit mobile number" maxlength="10">
+    </div>
+    <button onclick="saveProfileDetails()" class="btn-pay" style="width:100%;">Login & Continue to Booking ➔</button>
+  </div>
+
+  <!-- STATIC INFO PAGES -->
+  <div id="tripsView" class="page-view">
+    <h2>Your Trips</h2>
+    <p>Here you can view your past and upcoming bookings with Sai Cab Safar. Log in to your profile to sync your live trip records instantly.</p>
+  </div>
+
+  <div id="plannerView" class="page-view">
+    <h2>Trip Planner</h2>
+    <p>Plan your multi-city pilgrimage or outstation tour across Maharashtra effortlessly. Select custom stops and get instant transparent fare estimates.</p>
+  </div>
+
+  <div id="faqView" class="page-view">
+    <h2>Frequently Asked Questions (FAQ)</h2>
+    <p><b>Q: What is included in the cab fare?</b><br>A: Fare includes vehicle rental, driver allowance, and included kilometers. Toll and parking are extra as actuals.</p>
+    <p><b>Q: Is advance payment compulsory?</b><br>A: Yes, a 20% advance payment is required to confirm your booking slot, and the remaining balance is paid directly to the driver.</p>
+  </div>
+
+  <div id="referView" class="page-view">
+    <h2>Refer and Earn</h2>
+    <p>Refer Sai Cab Safar to your friends and family for outstation cabs and earn exciting discounts on your next ride!</p>
+  </div>
+
+  <div id="privacyView" class="page-view">
+    <h2>Privacy Policy</h2>
+    <p>Sai Cab Safar respects your privacy. We collect only necessary booking and contact details to fulfill your cab ride requests securely and never share your data with third parties.</p>
+  </div>
+
+  <div id="refundView" class="page-view">
+    <h2>Refund Policy</h2>
+    <p>Cancellations made 2 hours prior to pickup are eligible for a 100% refund of the advance amount. For last-minute cancellations, standard terms apply.</p>
+  </div>
+
+  <div id="termsView" class="page-view">
+    <h2>Terms Of Use</h2>
+    <p>By using Sai Cab Safar, you agree to abide by our fair usage policies, luggage limits, and timely payment terms for all outstation and local rentals.</p>
+  </div>
+
+  <div id="contactView" class="page-view">
+    <h2>Contact Us</h2>
+    <p><b>Sai Cab Safar Tours and Travels</b></p>
+    <p>📍 Based in Shirdi & Ahmednagar, Maharashtra</p>
+    <p>📞 Phone / WhatsApp: +91 9049133130</p>
+    <p>🌐 Website: <a href="https://saicabsafar.github.io/sai-cab-safar/" target="_blank" style="color:var(--primary); font-weight:700; text-decoration:none;">https://saicabsafar.github.io/sai-cab-safar/</a></p>
+  </div>
 
   <!-- UPI QR Code Modal Popup -->
   <div class="upi-modal" id="upiModal">
@@ -363,6 +406,69 @@
         drawer.classList.add('open');
         overlay.style.display = 'block';
       }
+    }
+
+    function showView(viewName) {
+      toggleDrawer();
+      document.getElementById('homeView').style.display = 'none';
+      document.getElementById('profileView').style.display = 'none';
+      document.getElementById('tripsView').style.display = 'none';
+      document.getElementById('plannerView').style.display = 'none';
+      document.getElementById('faqView').style.display = 'none';
+      document.getElementById('referView').style.display = 'none';
+      document.getElementById('privacyView').style.display = 'none';
+      document.getElementById('refundView').style.display = 'none';
+      document.getElementById('termsView').style.display = 'none';
+      document.getElementById('contactView').style.display = 'none';
+
+      if(viewName === 'home') {
+        document.getElementById('homeView').style.display = 'block';
+      } else if(viewName === 'profile') {
+        document.getElementById('profileView').style.display = 'block';
+      } else if(viewName === 'trips') {
+        document.getElementById('tripsView').style.display = 'block';
+      } else if(viewName === 'planner') {
+        document.getElementById('plannerView').style.display = 'block';
+      } else if(viewName === 'faq') {
+        document.getElementById('faqView').style.display = 'block';
+      } else if(viewName === 'refer') {
+        document.getElementById('referView').style.display = 'block';
+      } else if(viewName === 'privacy') {
+        document.getElementById('privacyView').style.display = 'block';
+      } else if(viewName === 'refund') {
+        document.getElementById('refundView').style.display = 'block';
+      } else if(viewName === 'terms') {
+        document.getElementById('termsView').style.display = 'block';
+      } else if(viewName === 'contact') {
+        document.getElementById('contactView').style.display = 'block';
+      }
+      window.scrollTo(0, 0);
+    }
+
+    function saveProfileDetails() {
+      const name = document.getElementById('profileName').value.trim();
+      const email = document.getElementById('profileEmail').value.trim();
+      const mobile = document.getElementById('profileMobile').value.trim();
+
+      if (!name || !email || mobile.length < 10) {
+        alert("Please enter valid Name, Email, and 10-digit Mobile Number.");
+        return;
+      }
+
+      // Update drawer header to show customer name and email
+      document.getElementById('drawerName').innerText = name;
+      document.getElementById('drawerEmail').innerText = email;
+
+      // Send WhatsApp notification to business owner
+      const loginMsg = encodeURIComponent("🔔 *New Customer Login Alert!*\n\n• Name: " + name + "\n• Email: " + email + "\n• Mobile: " + mobile);
+      window.open("https://wa.me/919049133130?text=" + loginMsg, '_blank');
+
+      alert("Login successful! Welcome to Sai Cab Safar.");
+      
+      // Directly open booking page (homeView) after login
+      document.getElementById('profileView').style.display = 'none';
+      document.getElementById('homeView').style.display = 'block';
+      window.scrollTo(0, 0);
     }
 
     const cityData = {
@@ -547,7 +653,7 @@
         document.getElementById('totalFareDisplay').innerText = "₹" + finalGrandTotal.toLocaleString('en-IN');
         document.getElementById('includedKmText').innerText = finalTotalKm + " KM";
         document.getElementById('extraFareText').innerText = "₹" + displayExtraRate + ".0/km";
-        document.getElementById('advancePayText').innerHTML = "Pay ₹" + advanceAmount.toLocaleString('en-IN') + " Advance<br><span style='color:var(--primary); font-size:13px;'>Remaining Balance to Pay: ₹" + remainingBalance.toLocaleString('en-IN') + "</span>";
+        document.getElementById('advancePayText').innerHTML = "Pay ₹" + advanceAmount.toLocaleString('en-IN') + " Advance<br><span style='color:var(--primary); font-size:13px;'>Remaining Balance to Pay to Driver: ₹" + remainingBalance.toLocaleString('en-IN') + "</span>";
       } else {
         document.getElementById('totalFareDisplay').innerText = "₹0";
       }
