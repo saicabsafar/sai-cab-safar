@@ -100,7 +100,7 @@
 
     /* Payment Bar */
     .payment-bar { background: var(--dark); padding: 20px; border-radius: 12px; text-align: center; }
-    .advance-text { color: #fff; font-size: 15px; font-weight: 700; margin-bottom: 12px; }
+    .advance-text { color: #fff; font-size: 14px; font-weight: 700; margin-bottom: 12px; line-height: 1.5; }
     .payment-notice { background: rgba(255, 77, 77, 0.15); color: #ff4d4d; border: 1px dashed #ff4d4d; padding: 12px; border-radius: 8px; font-size: 13px; font-weight: 600; margin-bottom: 15px; text-align: center; line-height: 1.4; }
     .btn-pay { width: 100%; background: var(--primary); color: var(--dark); border: none; border-radius: 30px; padding: 14px; font-weight: 800; font-size: 15px; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; margin-bottom: 10px; transition: 0.2s; }
     .btn-pay:hover { transform: scale(1.02); }
@@ -498,7 +498,6 @@
       if (isRoundTrip) {
         const destCity = document.getElementById('destCity').value.trim();
         if (destCity) routePoints.push(destCity);
-        // For round trip, add return path back to pickup location
         if (pCity) routePoints.push(pCity);
       } else {
         const dCity = document.getElementById('dropCity').value.trim();
@@ -526,7 +525,6 @@
         const rDate = new Date(document.getElementById('returnDate').value);
         totalDays = Math.max(1, Math.ceil((rDate - tDate) / (1000 * 3600 * 24)) + 1); 
         
-        // Minimum allowed KM check for round trips (250 KM per day limit)
         let minAllowedKm = totalDays * 250;
         finalTotalKm = routeDistance > minAllowedKm ? routeDistance : minAllowedKm;
       } else {
@@ -543,12 +541,13 @@
 
       finalGrandTotal = baseFare + addonTotal;
       advanceAmount = Math.round(baseFare * 0.20) + addonTotal; 
+      let remainingBalance = finalGrandTotal - advanceAmount;
 
       if(routeDistance > 0) {
         document.getElementById('totalFareDisplay').innerText = "₹" + finalGrandTotal.toLocaleString('en-IN');
         document.getElementById('includedKmText').innerText = finalTotalKm + " KM";
         document.getElementById('extraFareText').innerText = "₹" + displayExtraRate + ".0/km";
-        document.getElementById('advancePayText').innerText = "Pay ₹" + advanceAmount.toLocaleString('en-IN') + " advance and Book";
+        document.getElementById('advancePayText').innerHTML = "Pay ₹" + advanceAmount.toLocaleString('en-IN') + " Advance<br><span style='color:var(--primary); font-size:13px;'>Remaining Balance to Pay: ₹" + remainingBalance.toLocaleString('en-IN') + "</span>";
       } else {
         document.getElementById('totalFareDisplay').innerText = "₹0";
       }
@@ -622,6 +621,8 @@
         fullRouteString += "\n" + stopsListText.trim();
       }
 
+      let remainingBalance = finalGrandTotal - advanceAmount;
+
       const rawText = "Hello Sai Cab Safar, I want to confirm my booking:\n\n" +
                       "🚕 *TRIP DETAILS*\n" +
                       "• Type: " + (isRoundTrip ? "Round-Trip" : "One-Way") + "\n" +
@@ -633,7 +634,9 @@
                       "• Included KM: " + finalTotalKm + " KM\n" +
                       "• Add-ons:" + (addonText ? addonText : " None") + "\n" +
                       "• *Total Fare: ₹" + finalGrandTotal.toLocaleString('en-IN') + "*\n" +
-                      "• *Advance Paid/To Pay: ₹" + advanceAmount.toLocaleString('en-IN') + "*\n\n" +
+                      "• *Advance Paid: ₹" + advanceAmount.toLocaleString('en-IN') + "*\n" +
+                      "• *Remaining Balance to Pay to Driver: ₹" + remainingBalance.toLocaleString('en-IN') + "*\n\n" +
+                      "📸 *IMPORTANT: Please send the payment screenshot here to confirm your booking.*\n\n" +
                       "Please confirm my booking.";
 
       const encodedMessage = encodeURIComponent(rawText);
