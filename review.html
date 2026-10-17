@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Review Sai Cab Safar</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; background-color: #f4f4f9; }
+        .container { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); max-width: 400px; margin: auto; }
+        h2 { color: #333; }
+        textarea { width: 90%; height: 80px; margin-bottom: 10px; padding: 10px; border-radius: 5px; border: 1px solid #ccc; font-size: 14px; resize: none;}
+        button { border: none; padding: 12px 20px; border-radius: 5px; cursor: pointer; font-size: 16px; margin: 10px 0; width: 100%; font-weight: bold;}
+        .copy-btn { background: #fbbc05; color: #333; }
+        .review-btn { background: #4285F4; color: white; }
+        #msg { color: green; display: none; font-size: 14px; margin-top: -5px; margin-bottom: 15px;}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Rate Sai Cab Safar 🚕</h2>
+        <p>1. Copy the text below:</p>
+        
+        <!-- Yahan aap apna pasandida template rakh sakte hain -->
+        <textarea id="reviewText" readonly>"Excellent service by Sai Cab Safar! The car was clean, the driver was very professional, and we had a very comfortable trip. Highly recommended!"</textarea>
+        
+        <button class="copy-btn" onclick="copyText()">📋 Copy Text</button>
+        <p id="msg">✅ Text Copied! Now click the button below and paste it.</p>
+
+        <p>2. Paste on Google Reviews:</p>
+        <!-- Aapka original Google Review Link -->
+        <a href="https://g.page/r/CUhdnXnERsG6EBI/review" target="_blank" style="text-decoration: none;">
+            <button class="review-btn">⭐ Give 5 Stars on Google</button>
+        </a>
+    </div>
+
+    <script>
+        function copyText() {
+            var text = document.getElementById("reviewText");
+            text.select();
+            text.setSelectionRange(0, 99999); /* For mobile devices */
+            navigator.clipboard.writeText(text.value).then(() => {
+                document.getElementById("msg").style.display = "block";
+            });
+        }
+    </script>
+</body>
+</html>
