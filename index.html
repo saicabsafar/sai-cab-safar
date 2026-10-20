@@ -122,7 +122,6 @@
     .qr-box img { width: 180px; height: 180px; object-fit: contain; }
     .upi-id-box { background: #f1f1f1; padding: 10px; border-radius: 8px; font-weight: 700; font-size: 14px; margin-bottom: 20px; color: #333; word-break: break-all; }
     .btn-close-modal { background: var(--dark); color: #fff; border: none; padding: 12px; width: 100%; border-radius: 25px; font-weight: 700; cursor: pointer; margin-top: 10px; }
-    .profile-input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 14px; margin-bottom: 15px; outline: none; background: #fff; font-weight: 600; }
     .trip-card-item { background: #f9f9f9; border: 1px solid #ddd; padding: 15px; border-radius: 10px; margin-bottom: 15px; }
 
     @media (max-width: 768px) {
@@ -144,12 +143,11 @@
   <!-- Side Menu Drawer -->
   <div class="drawer" id="sideDrawer">
     <div class="drawer-header" id="drawerHeader">
-      <h3 id="drawerName">Sai Cab Safar</h3>
-      <p id="drawerEmail">24x7 Cab Service</p>
+      <h3>Sai Cab Safar</h3>
+      <p>24x7 Cab Service</p>
     </div>
     <ul class="drawer-menu">
       <li><a onclick="showView('home')">Home</a></li>
-      <li><a onclick="showView('profile')">Profile</a></li>
       <li><a onclick="showView('trips')">Your Trips</a></li>
       <li><a onclick="showView('planner')">Trip Planner</a></li>
       <li><a onclick="showView('faq')">FAQ</a></li>
@@ -165,7 +163,7 @@
   </div>
 
   <!-- MAIN HOME VIEW (Booking Page) -->
-  <div id="homeView" class="main-view">
+  <div id="homeView" class="main-view" style="display: block;">
     <section class="hero-section">
       <div class="hero-overlay"></div>
       
@@ -314,28 +312,6 @@
     </section>
   </div>
 
-  <!-- PROFILE / INITIAL LOGIN VIEW -->
-  <div id="profileView" class="page-view" style="display: block;">
-    <h2>Customer Login & Profile</h2>
-    <div style="text-align: center; margin-bottom: 25px;">
-      <div style="width: 80px; height: 80px; background: var(--primary); border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; font-size: 36px;">👤</div>
-      <p style="font-weight: 700; color: var(--dark);">Please enter your details to proceed to booking</p>
-    </div>
-    <div style="margin-bottom: 15px;">
-      <label style="font-size: 13px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 5px;">Name</label>
-      <input type="text" id="profileName" class="profile-input" placeholder="Enter your full name">
-    </div>
-    <div style="margin-bottom: 15px;">
-      <label style="font-size: 13px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 5px;">Email</label>
-      <input type="email" id="profileEmail" class="profile-input" placeholder="Enter your email address">
-    </div>
-    <div style="margin-bottom: 20px;">
-      <label style="font-size: 13px; font-weight: 700; color: var(--text-gray); display: block; margin-bottom: 5px;">Mobile Number</label>
-      <input type="tel" id="profileMobile" class="profile-input" placeholder="Enter 10-digit mobile number" maxlength="10">
-    </div>
-    <button onclick="saveProfileDetails()" class="btn-pay" style="width:100%;">Login & Continue to Booking ➔</button>
-  </div>
-
   <!-- YOUR TRIPS VIEW -->
   <div id="tripsView" class="page-view">
     <h2>Your Booked Trips</h2>
@@ -416,7 +392,6 @@
     function showView(viewName) {
       toggleDrawer();
       document.getElementById('homeView').style.display = 'none';
-      document.getElementById('profileView').style.display = 'none';
       document.getElementById('tripsView').style.display = 'none';
       document.getElementById('plannerView').style.display = 'none';
       document.getElementById('faqView').style.display = 'none';
@@ -428,8 +403,6 @@
 
       if(viewName === 'home') {
         document.getElementById('homeView').style.display = 'block';
-      } else if(viewName === 'profile') {
-        document.getElementById('profileView').style.display = 'block';
       } else if(viewName === 'trips') {
         loadCustomerTrips();
         document.getElementById('tripsView').style.display = 'block';
@@ -448,33 +421,6 @@
       } else if(viewName === 'contact') {
         document.getElementById('contactView').style.display = 'block';
       }
-      window.scrollTo(0, 0);
-    }
-
-    function saveProfileDetails() {
-      const name = document.getElementById('profileName').value.trim();
-      const email = document.getElementById('profileEmail').value.trim();
-      const mobile = document.getElementById('profileMobile').value.trim();
-
-      if (!name || !email || mobile.length < 10) {
-        alert("Please enter valid Name, Email, and 10-digit Mobile Number.");
-        return;
-      }
-
-      localStorage.setItem('customerName', name);
-      localStorage.setItem('customerEmail', email);
-      localStorage.setItem('customerMobile', mobile);
-
-      document.getElementById('drawerName').innerText = name;
-      document.getElementById('drawerEmail').innerText = email;
-
-      const loginMsg = encodeURIComponent("🔔 *New Customer Login Alert!*\n\n• Name: " + name + "\n• Email: " + email + "\n• Mobile: " + mobile);
-      window.open("https://wa.me/919049133130?text=" + loginMsg, '_blank');
-
-      alert("Login successful! Welcome to Sai Cab Safar.");
-      
-      document.getElementById('profileView').style.display = 'none';
-      document.getElementById('homeView').style.display = 'block';
       window.scrollTo(0, 0);
     }
 
@@ -673,7 +619,6 @@
         let minAllowedKm = totalDays * 250;
         finalTotalKm = routeDistance > minAllowedKm ? routeDistance : minAllowedKm;
       } else {
-        // One-way: if distance > 150, show actual calculated distance, otherwise minimum 150 KM slab
         finalTotalKm = routeDistance > 150 ? routeDistance : (routeDistance > 0 ? 150 : 0);
       }
 
