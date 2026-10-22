@@ -766,7 +766,14 @@
       let remainingBalance = finalGrandTotal - advanceAmount;
       let tollText = (priceMode === 'best') ? 'Best Price (Toll Extra / Parking extra if applicable)' : 'Toll Inclusive (Parking extra if applicable)';
 
-      const rawText = "Hello Sai Cab Safar,\n\n🚕 *TRIP DETAILS*\n• Trip Type: " + tripType + "\n• Pickup Location: " + pickupCity + "\n• Drop Location: " + dropCityName + "\n" + scheduleText + "• Address: " + fullAddress + "\n\n🚗 *FARE*\n• Car: " + selectedCarName + "\n• Distance: " + actualRouteKm + " KM\n• Price Mode: " + tollText + "\n• *Total Fare: ₹" + finalGrandTotal.toLocaleString('en-IN') + "*\n• *Advance Paid: ₹" + advanceAmount.toLocaleString('en-IN') + "*\n• *Remaining: ₹" + remainingBalance.toLocaleString('en-IN') + "*\n\n⚠️ *Note: After successful payment, tap on 'Confirm Booking' below and send us the payment screenshot.*";
+      // Collect selected add-ons
+      let addonsSelected = [];
+      document.querySelectorAll('.addon-cb:checked').forEach(cb => {
+        addonsSelected.push(cb.getAttribute('data-name') + " (₹" + cb.value + ")");
+      });
+      let addonText = addonsSelected.length > 0 ? "\n• Add-ons: " + addonsSelected.join(", ") : "";
+
+      const rawText = "Hello Sai Cab Safar,\n\n🚕 *TRIP DETAILS*\n• Trip Type: " + tripType + "\n• Pickup Location: " + pickupCity + "\n• Drop Location: " + dropCityName + "\n" + scheduleText + "• Address: " + fullAddress + "\n\n🚗 *FARE*\n• Car: " + selectedCarName + "\n• Distance: " + actualRouteKm + " KM\n• Price Mode: " + tollText + addonText + "\n• *Total Fare: ₹" + finalGrandTotal.toLocaleString('en-IN') + "*\n• *Advance Paid: ₹" + advanceAmount.toLocaleString('en-IN') + "*\n• *Remaining: ₹" + remainingBalance.toLocaleString('en-IN') + "*\n\n⚠️ *Note: After successful payment, tap on 'Confirm Booking' below and send us the payment screenshot.*";
 
       window.open("https://wa.me/919049133130?text=" + encodeURIComponent(rawText), '_blank');
     }
